@@ -6,11 +6,13 @@ import { calculateModelViewMat } from '../utils/matrix.utils';
 
 export default class GameObject {
   private _position: vec3;
+  private _rotation: vec3;
 
   private _mesh?: Mesh;
 
-  constructor(position?: vec3, mesh?: Mesh) {
-    this._position = position || vec3.fromValues(0, 0, 0);
+  constructor(position?: vec3, rotation?: vec3, mesh?: Mesh) {
+    this._position = position || vec3.create();
+    this._rotation = rotation || vec3.create();
     this._mesh = mesh;
   }
 
@@ -30,11 +32,19 @@ export default class GameObject {
     return this._position;
   }
 
+  public set rotation(rotation: vec3) {
+    this._rotation = rotation;
+  }
+
+  public get rotation(): vec3 {
+    return this._rotation;
+  }
+
   public render(gl: WebGLRenderingContext, shader: Shader) {
     if (this._mesh) {
       this._mesh.bind(gl, shader);
 
-      shader.setModelViewMatrix(gl, calculateModelViewMat(this._position));
+      shader.setModelMatrix(gl, calculateModelViewMat(this._position, this._rotation));
 
       this._mesh.render(gl);
     }
