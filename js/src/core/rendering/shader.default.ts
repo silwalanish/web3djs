@@ -1,34 +1,46 @@
 import Shader, { ShaderSource } from './shader';
-import { debug } from '../logger';
 
 const DEFAULT_SHADER_SOURCE: ShaderSource = {
   vertex: `
     attribute vec4 aVertexPosition;
+    attribute vec4 aVertexColor;
 
-    uniform mat4 uModelViewMatrix;
+    uniform mat4 uViewMatrix;
+    uniform mat4 uModelMatrix;
     uniform mat4 uProjectionMatrix;
 
+    varying lowp vec4 vColor;
+
     void main() {
-      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+      gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
+      vColor = aVertexColor;
     }
   `,
   fragment: `
+    varying lowp vec4 vColor;
+
     void main() {
-      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+      gl_FragColor = vColor;
     }
   `
 };
 
 export default class DefaultShader extends Shader {
   private readonly vertexPositionLoc: GLuint | null;
-  private readonly modelViewMatrixLoc: WebGLUniformLocation | null;
+  private readonly vertexColorLoc: GLuint | null;
+
+  private readonly viewMatrixLoc: WebGLUniformLocation | null;
+  private readonly modelMatrixLoc: WebGLUniformLocation | null;
   private readonly projectionMatrixLoc: WebGLUniformLocation | null;
 
   public constructor(gl: WebGLRenderingContext) {
     super(gl, DEFAULT_SHADER_SOURCE);
 
     this.vertexPositionLoc = this.getAttribLocation(gl, 'aVertexPosition');
-    this.modelViewMatrixLoc = this.getUniformLocation(gl, 'uModelViewMatrix');
+    this.vertexColorLoc = this.getAttribLocation(gl, 'aVertexColor');
+
+    this.viewMatrixLoc = this.getUniformLocation(gl, 'uViewMatrix');
+    this.modelMatrixLoc = this.getUniformLocation(gl, 'uModelMatrix');
     this.projectionMatrixLoc = this.getUniformLocation(gl, 'uProjectionMatrix');
   }
 
@@ -41,14 +53,7 @@ export default class DefaultShader extends Shader {
     offset: GLuint
   ): void {
     if (this.vertexPositionLoc != null) {
-      gl.vertexAttribPointer(
-        this.vertexPositionLoc,
-        components,
-        type,
-        normalize,
-        stride,
-        offset
-      );
+      gl.vertexAttribPointer(this.vertexPositionLoc, components, type, normalize, stride, offset);
       gl.enableVertexAttribArray(this.vertexPositionLoc);
     }
   }
@@ -83,7 +88,10 @@ export default class DefaultShader extends Shader {
     stride: number,
     offset: number
   ): void {
-    throw new Error('Method not implemented.');
+    if (this.vertexColorLoc != null) {
+      gl.vertexAttribPointer(this.vertexColorLoc, components, type, normalize, stride, offset);
+      gl.enableVertexAttribArray(this.vertexColorLoc);
+    }
   }
 
   public enableVertexUVPosition(
@@ -97,14 +105,15 @@ export default class DefaultShader extends Shader {
     throw new Error('Method not implemented.');
   }
 
-  public setModelViewMatrix(gl: WebGLRenderingContext, mat: Float32List): void {
-    gl.uniformMatrix4fv(this.modelViewMatrixLoc, false, mat);
+  public setModelMatrix(gl: WebGLRenderingContext, mat: Float32List): void {
+    gl.uniformMatrix4fv(this.modelMatrixLoc, false, mat);
   }
 
-  public setProjectionMatrix(
-    gl: WebGLRenderingContext,
-    mat: Float32List
-  ): void {
+  public setViewMatrix(gl: WebGLRenderingContext, mat: Float32List): void {
+    gl.uniformMatrix4fv(this.viewMatrixLoc, false, mat);
+  }
+
+  public setProjectionMatrix(gl: WebGLRenderingContext, mat: Float32List): void {
     gl.uniformMatrix4fv(this.projectionMatrixLoc, false, mat);
   }
 }
