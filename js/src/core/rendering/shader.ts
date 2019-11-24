@@ -12,15 +12,26 @@ export default class Shader {
     this.shaderProgram = genShaderProgram(gl, source.vertex, source.fragment);
   }
 
-  public use(gl: WebGLRenderingContext) : void {
+  public use(gl: WebGLRenderingContext): void {
     gl.useProgram(this.shaderProgram);
   }
 
-  protected getAttribLocation(gl: WebGLRenderingContext, attribName: string) : GLuint | null {
-    return this.shaderProgram && gl.getAttribLocation(this.shaderProgram, attribName);
+  protected getAttribLocation(
+    gl: WebGLRenderingContext,
+    attribName: string
+  ): GLuint | null {
+    return (
+      this.shaderProgram && gl.getAttribLocation(this.shaderProgram, attribName)
+    );
   }
 
-  protected getUniformLocation(gl: WebGLRenderingContext, uniformName: string) : WebGLUniformLocation | null {
-    return this.shaderProgram && gl.getUniformLocation(this.shaderProgram, uniformName);
+  protected getUniformLocation(
+    gl: WebGLRenderingContext,
+    uniformName: string
+  ): WebGLUniformLocation | null {
+    return (
+      this.shaderProgram &&
+      gl.getUniformLocation(this.shaderProgram, uniformName)
+    );
   }
 }
