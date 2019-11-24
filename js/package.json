@@ -4,10 +4,13 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc && browserify build/index.js -o dist/index.js",
+    "watch": "watchify build/index.js -o dist/index.js --debug --verbose"
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^12.12.12"
+    "@types/node": "^12.12.12",
+    "browserify": "^16.5.0",
+    "watchify": "^3.11.1"
   }
 }
