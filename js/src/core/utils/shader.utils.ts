@@ -1,7 +1,7 @@
 import { error } from '../logger';
 
 export type Shader = WebGLShader | null;
-export type ShaderProgram = WebGLShader | null;
+export type ShaderProgram = WebGLProgram | null;
 
 /**
  * Returns a WebGLShader if the source compiles successfully, null otherwise
