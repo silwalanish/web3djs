@@ -6,5 +6,8 @@
     "start": "tsc --watch",
     "build": "tsc"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^12.12.12"
+  }
 }
