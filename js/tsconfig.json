@@ -3,7 +3,8 @@
     "module": "commonjs",
     "outDir": "build/",
     "alwaysStrict": true,
-    "removeComments": true
+    "removeComments": true,
+    "strictNullChecks": true
   },
   "include": [
     "src/**/*"
