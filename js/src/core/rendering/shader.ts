@@ -16,23 +16,12 @@ export default abstract class Shader {
     gl.useProgram(this.shaderProgram);
   }
 
-  protected getAttribLocation(
-    gl: WebGLRenderingContext,
-    attribName: string
-  ): GLuint | null {
-    return (
-      this.shaderProgram && gl.getAttribLocation(this.shaderProgram, attribName)
-    );
+  protected getAttribLocation(gl: WebGLRenderingContext, attribName: string): GLuint | null {
+    return this.shaderProgram && gl.getAttribLocation(this.shaderProgram, attribName);
   }
 
-  protected getUniformLocation(
-    gl: WebGLRenderingContext,
-    uniformName: string
-  ): WebGLUniformLocation | null {
-    return (
-      this.shaderProgram &&
-      gl.getUniformLocation(this.shaderProgram, uniformName)
-    );
+  protected getUniformLocation(gl: WebGLRenderingContext, uniformName: string): WebGLUniformLocation | null {
+    return this.shaderProgram && gl.getUniformLocation(this.shaderProgram, uniformName);
   }
 
   public abstract enableVertexPosition(
@@ -80,13 +69,9 @@ export default abstract class Shader {
     offset: GLuint
   ): void;
 
-  public abstract setProjectionMatrix(
-    gl: WebGLRenderingContext,
-    mat: Float32List
-  ): void;
+  public abstract setProjectionMatrix(gl: WebGLRenderingContext, mat: Float32List): void;
 
-  public abstract setModelViewMatrix(
-    gl: WebGLRenderingContext,
-    mat: Float32List
-  ): void;
+  public abstract setViewMatrix(gl: WebGLRenderingContext, mat: Float32List): void;
+
+  public abstract setModelMatrix(gl: WebGLRenderingContext, mat: Float32List): void;
 }
