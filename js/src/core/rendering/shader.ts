@@ -1,4 +1,4 @@
-import { genShaderProgram, ShaderProgram } from './shader.utils';
+import { genShaderProgram, ShaderProgram } from '../utils/shader.utils';
 
 export interface ShaderSource {
   vertex: string;
