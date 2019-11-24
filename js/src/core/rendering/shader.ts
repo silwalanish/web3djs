@@ -5,10 +5,10 @@ export interface ShaderSource {
   fragment: string;
 }
 
-export default class Shader {
+export default abstract class Shader {
   private readonly shaderProgram: ShaderProgram;
 
-  protected constructor(gl: WebGLRenderingContext, source: ShaderSource) {
+  constructor(gl: WebGLRenderingContext, source: ShaderSource) {
     this.shaderProgram = genShaderProgram(gl, source.vertex, source.fragment);
   }
 
@@ -34,4 +34,59 @@ export default class Shader {
       gl.getUniformLocation(this.shaderProgram, uniformName)
     );
   }
+
+  public abstract enableVertexPosition(
+    gl: WebGLRenderingContext,
+    components: number,
+    type: GLuint,
+    normalize: GLboolean,
+    stride: GLuint,
+    offset: GLuint
+  ): void;
+
+  public abstract enableIndex(
+    gl: WebGLRenderingContext,
+    components: number,
+    type: GLuint,
+    normalize: GLboolean,
+    stride: GLuint,
+    offset: GLuint
+  ): void;
+
+  public abstract enableVertexNormal(
+    gl: WebGLRenderingContext,
+    components: number,
+    type: GLuint,
+    normalize: GLboolean,
+    stride: GLuint,
+    offset: GLuint
+  ): void;
+
+  public abstract enableVertexColor(
+    gl: WebGLRenderingContext,
+    components: number,
+    type: GLuint,
+    normalize: GLboolean,
+    stride: GLuint,
+    offset: GLuint
+  ): void;
+
+  public abstract enableVertexUVPosition(
+    gl: WebGLRenderingContext,
+    components: number,
+    type: GLuint,
+    normalize: GLboolean,
+    stride: GLuint,
+    offset: GLuint
+  ): void;
+
+  public abstract setProjectionMatrix(
+    gl: WebGLRenderingContext,
+    mat: Float32List
+  ): void;
+
+  public abstract setModelViewMatrix(
+    gl: WebGLRenderingContext,
+    mat: Float32List
+  ): void;
 }

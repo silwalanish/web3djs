@@ -53,6 +53,50 @@ export default class DefaultShader extends Shader {
     }
   }
 
+  public enableIndex(
+    gl: WebGLRenderingContext,
+    components: number,
+    type: number,
+    normalize: boolean,
+    stride: number,
+    offset: number
+  ): void {
+    throw new Error('Method not implemented.');
+  }
+
+  public enableVertexNormal(
+    gl: WebGLRenderingContext,
+    components: number,
+    type: number,
+    normalize: boolean,
+    stride: number,
+    offset: number
+  ): void {
+    throw new Error('Method not implemented.');
+  }
+
+  public enableVertexColor(
+    gl: WebGLRenderingContext,
+    components: number,
+    type: number,
+    normalize: boolean,
+    stride: number,
+    offset: number
+  ): void {
+    throw new Error('Method not implemented.');
+  }
+
+  public enableVertexUVPosition(
+    gl: WebGLRenderingContext,
+    components: number,
+    type: number,
+    normalize: boolean,
+    stride: number,
+    offset: number
+  ): void {
+    throw new Error('Method not implemented.');
+  }
+
   public setModelViewMatrix(gl: WebGLRenderingContext, mat: Float32List): void {
     gl.uniformMatrix4fv(this.modelViewMatrixLoc, false, mat);
   }
