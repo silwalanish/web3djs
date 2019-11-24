@@ -1,7 +1,7 @@
 import { error } from '../logger';
 
-export type Shader = WebGLShader | null;
-export type ShaderProgram = WebGLProgram | null;
+export type ShaderType = WebGLShader | null;
+export type ShaderProgramType = WebGLProgram | null;
 
 /**
  * Returns a WebGLShader if the source compiles successfully, null otherwise
@@ -16,8 +16,8 @@ export function compileShader(
   gl: WebGLRenderingContext,
   type: GLuint,
   source: string
-): Shader {
-  const shader: Shader = gl.createShader(type);
+): ShaderType {
+  const shader: ShaderType = gl.createShader(type);
 
   if (!shader) {
     error('An error occurred while creating shader.');
@@ -54,8 +54,8 @@ export function genShaderProgram(
   gl: WebGLRenderingContext,
   vsSource: string,
   fsSource: string
-): ShaderProgram {
-  const vertexShader: Shader = compileShader(
+): ShaderProgramType {
+  const vertexShader: ShaderType = compileShader(
     gl,
     gl.VERTEX_SHADER,
     vsSource
@@ -66,7 +66,7 @@ export function genShaderProgram(
     return null;
   }
 
-  const fragmentShader: Shader = compileShader(
+  const fragmentShader: ShaderType = compileShader(
     gl,
     gl.FRAGMENT_SHADER,
     fsSource
@@ -77,7 +77,7 @@ export function genShaderProgram(
     return null;
   }
 
-  const shaderProgram: ShaderProgram = gl.createProgram();
+  const shaderProgram: ShaderProgramType = gl.createProgram();
   if (!shaderProgram) {
     error('Unable to create program.');
 

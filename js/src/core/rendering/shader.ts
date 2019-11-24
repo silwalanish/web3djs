@@ -1,4 +1,4 @@
-import { genShaderProgram, ShaderProgram } from '../utils/shader.utils';
+import { genShaderProgram, ShaderProgramType } from '../utils/shader.utils';
 
 export interface ShaderSource {
   vertex: string;
@@ -6,7 +6,7 @@ export interface ShaderSource {
 }
 
 export default abstract class Shader {
-  private readonly shaderProgram: ShaderProgram;
+  private readonly shaderProgram: ShaderProgramType;
 
   constructor(gl: WebGLRenderingContext, source: ShaderSource) {
     this.shaderProgram = genShaderProgram(gl, source.vertex, source.fragment);
