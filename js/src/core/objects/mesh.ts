@@ -21,12 +21,20 @@ export interface MeshOptions {
   posMetaData: BufferMeta;
   colors?: GLfloat[];
   colorMetaData?: BufferMeta;
+  uvs?: GLfloat[];
+  uvMetaData?: BufferMeta;
   indices?: GLuint[];
 }
 
 const DEFAULT_OPTIONS = {
   colorMetaData: {
     components: 4,
+    normalize: false,
+    stride: 0,
+    offset: 0
+  },
+  uvMetaData: {
+    components: 2,
     normalize: false,
     stride: 0,
     offset: 0
@@ -40,13 +48,19 @@ export default class Mesh {
   private colorBuffer: Buffer;
   private colorMeta: BufferMeta;
 
+  private uvBuffer: Buffer;
+  private uvMeta: BufferMeta;
+
   private indicesBuffer: Buffer;
 
   private meshMeta: MeshMeta;
 
   public constructor(options: MeshOptions) {
     const defaultOptions = Object.create(DEFAULT_OPTIONS);
-    const { gl, meta, positions, posMetaData, colors, colorMetaData, indices } = Object.assign(defaultOptions, options);
+    const { gl, meta, positions, posMetaData, colors, colorMetaData, uvs, uvMetaData, indices } = Object.assign(
+      defaultOptions,
+      options
+    );
 
     this.meshMeta = meta;
     this.positionBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
@@ -55,6 +69,11 @@ export default class Mesh {
     if (colors) {
       this.colorBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
       this.colorMeta = colorMetaData;
+    }
+
+    if (uvs) {
+      this.uvBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, uvs, gl.STATIC_DRAW);
+      this.uvMeta = uvMetaData;
     }
 
     if (indices) {
@@ -86,6 +105,18 @@ export default class Mesh {
         this.colorMeta.normalize,
         this.colorMeta.stride,
         this.colorMeta.offset
+      );
+    }
+
+    if (this.uvBuffer) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
+      shader.enableVertexUVPosition(
+        gl,
+        this.uvMeta.components,
+        gl.FLOAT,
+        this.uvMeta.normalize,
+        this.uvMeta.stride,
+        this.uvMeta.offset
       );
     }
   }
