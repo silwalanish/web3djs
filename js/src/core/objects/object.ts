@@ -1,8 +1,19 @@
-import { vec3 } from 'gl-matrix';
+import { vec3 } from "gl-matrix";
 
-import Mesh from './mesh';
-import Shader from '../rendering/shader';
-import { calculateModelMat } from '../utils/matrix.utils';
+import Mesh from "./mesh";
+import Shader from "../rendering/shader";
+import { calculateModelMat } from "../utils/matrix.utils";
+
+export interface GameObjectMeta {
+  position?: vec3;
+  rotation?: vec3;
+  mesh?: Mesh;
+}
+
+const DEFAULT_OPTIONS = {
+  position: vec3.create(),
+  rotation: vec3.create()
+};
 
 export default class GameObject {
   private _position: vec3;
@@ -10,9 +21,12 @@ export default class GameObject {
 
   private _mesh?: Mesh;
 
-  constructor(position?: vec3, rotation?: vec3, mesh?: Mesh) {
-    this._position = position || vec3.create();
-    this._rotation = rotation || vec3.create();
+  constructor(options?: GameObjectMeta) {
+    const defaultOptions = Object.create(DEFAULT_OPTIONS);
+    const { position, rotation, mesh } = Object.assign(defaultOptions, options);
+
+    this._position = position;
+    this._rotation = rotation;
     this._mesh = mesh;
   }
 
