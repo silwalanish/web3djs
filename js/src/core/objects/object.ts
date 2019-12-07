@@ -2,7 +2,7 @@ import { vec3 } from 'gl-matrix';
 
 import Mesh from './mesh';
 import Shader from '../rendering/shader';
-import { calculateModelViewMat } from '../utils/matrix.utils';
+import { calculateModelMat } from '../utils/matrix.utils';
 
 export default class GameObject {
   private _position: vec3;
@@ -44,7 +44,7 @@ export default class GameObject {
     if (this._mesh) {
       this._mesh.bind(gl, shader);
 
-      shader.setModelMatrix(gl, calculateModelViewMat(this._position, this._rotation));
+      shader.setModelMatrix(gl, calculateModelMat(this._position, this._rotation, vec3.fromValues(1, 1, 1)));
 
       this._mesh.render(gl);
     }

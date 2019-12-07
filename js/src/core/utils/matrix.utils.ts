@@ -4,14 +4,16 @@ function toRadians(deg: number): number {
   return deg * (Math.PI / 180);
 }
 
-export function calculateModelViewMat(position: vec3, rotation: vec3): mat4 {
-  const modelViewMatrix: mat4 = mat4.create();
+export function calculateModelMat(position: vec3, rotation: vec3, scale: vec3): mat4 {
+  const modelMatrix: mat4 = mat4.create();
 
-  mat4.translate(modelViewMatrix, modelViewMatrix, position);
+  mat4.scale(modelMatrix, modelMatrix, scale);
 
-  mat4.rotateX(modelViewMatrix, modelViewMatrix, toRadians(rotation[0]));
-  mat4.rotateY(modelViewMatrix, modelViewMatrix, toRadians(rotation[1]));
-  mat4.rotateZ(modelViewMatrix, modelViewMatrix, toRadians(rotation[2]));
+  mat4.rotateX(modelMatrix, modelMatrix, toRadians(rotation[0]));
+  mat4.rotateY(modelMatrix, modelMatrix, toRadians(rotation[1]));
+  mat4.rotateZ(modelMatrix, modelMatrix, toRadians(rotation[2]));
 
-  return modelViewMatrix;
+  mat4.translate(modelMatrix, modelMatrix, position);
+
+  return modelMatrix;
 }
