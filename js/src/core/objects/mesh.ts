@@ -1,5 +1,5 @@
 import Shader from '../rendering/shader';
-import { Buffer, createFloatBuffer } from '../utils/buffer.utils';
+import { Buffer, createFloatBuffer, BufferType } from '../utils/buffer.utils';
 
 export interface MeshMeta {
   numVertex: number;
@@ -46,11 +46,11 @@ export default class Mesh {
     const { gl, meta, position, posMetaData, color, colorMetaData } = Object.assign(defaultOptions, options);
 
     this.meshMeta = meta;
-    this.positionBuffer = createFloatBuffer(gl, position, gl.STATIC_DRAW);
+    this.positionBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, position, gl.STATIC_DRAW);
     this.positionMeta = posMetaData;
 
     if (color) {
-      this.colorBuffer = createFloatBuffer(gl, color, gl.STATIC_DRAW);
+      this.colorBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, color, gl.STATIC_DRAW);
       this.colorMeta = colorMetaData;
     }
   }
