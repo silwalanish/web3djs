@@ -1,5 +1,5 @@
 import Shader from '../rendering/shader';
-import { Buffer, createFloatBuffer, BufferType } from '../utils/buffer.utils';
+import { Buffer, createFloatBuffer, BufferType, createUIntBuffer } from '../utils/buffer.utils';
 
 export interface MeshMeta {
   numVertex: number;
@@ -17,10 +17,11 @@ export interface BufferMeta {
 export interface MeshOptions {
   gl: WebGLRenderingContext;
   meta: MeshMeta;
-  position: GLfloat[];
+  positions: GLfloat[];
   posMetaData: BufferMeta;
-  color?: GLfloat[];
+  colors?: GLfloat[];
   colorMetaData?: BufferMeta;
+  indices?: GLuint[];
 }
 
 const DEFAULT_OPTIONS = {
@@ -39,23 +40,33 @@ export default class Mesh {
   private colorBuffer: Buffer;
   private colorMeta: BufferMeta;
 
+  private indicesBuffer: Buffer;
+
   private meshMeta: MeshMeta;
 
   public constructor(options: MeshOptions) {
     const defaultOptions = Object.create(DEFAULT_OPTIONS);
-    const { gl, meta, position, posMetaData, color, colorMetaData } = Object.assign(defaultOptions, options);
+    const { gl, meta, positions, posMetaData, colors, colorMetaData, indices } = Object.assign(defaultOptions, options);
 
     this.meshMeta = meta;
-    this.positionBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, position, gl.STATIC_DRAW);
+    this.positionBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
     this.positionMeta = posMetaData;
 
-    if (color) {
-      this.colorBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, color, gl.STATIC_DRAW);
+    if (colors) {
+      this.colorBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
       this.colorMeta = colorMetaData;
+    }
+
+    if (indices) {
+      this.indicesBuffer = createUIntBuffer(gl, BufferType.INDEX_BUFFER, indices, gl.STATIC_DRAW);
     }
   }
 
   public bind(gl: WebGLRenderingContext, shader: Shader): void {
+    if (this.indicesBuffer) {
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer);
+    }
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
     shader.enableVertexPosition(
       gl,
@@ -80,6 +91,10 @@ export default class Mesh {
   }
 
   public render(gl: WebGLRenderingContext): void {
+    if (this.indicesBuffer) {
+      gl.drawElements(this.meshMeta.meshType, this.meshMeta.numVertex, gl.UNSIGNED_SHORT, this.meshMeta.firstVertex);
+      return;
+    }
     gl.drawArrays(this.meshMeta.meshType, this.meshMeta.firstVertex, this.meshMeta.numVertex);
   }
 }
