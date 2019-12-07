@@ -14,6 +14,24 @@ export interface BufferMeta {
   offset: number;
 }
 
+export interface MeshOptions {
+  gl: WebGLRenderingContext;
+  meta: MeshMeta;
+  position: GLfloat[];
+  posMetaData: BufferMeta;
+  color?: GLfloat[];
+  colorMetaData?: BufferMeta;
+}
+
+const DEFAULT_OPTIONS = {
+  colorMetaData: {
+    components: 4,
+    normalize: false,
+    stride: 0,
+    offset: 0
+  }
+};
+
 export default class Mesh {
   private positionBuffer: Buffer;
   private positionMeta: BufferMeta;
@@ -23,26 +41,17 @@ export default class Mesh {
 
   private meshMeta: MeshMeta;
 
-  public constructor(
-    gl: WebGLRenderingContext,
-    meta: MeshMeta,
-    position: GLfloat[],
-    posMetaData: BufferMeta,
-    color?: GLfloat[],
-    colorMetaData?: BufferMeta
-  ) {
+  public constructor(options: MeshOptions) {
+    const defaultOptions = Object.create(DEFAULT_OPTIONS);
+    const { gl, meta, position, posMetaData, color, colorMetaData } = Object.assign(defaultOptions, options);
+
     this.meshMeta = meta;
     this.positionBuffer = createFloatBuffer(gl, position, gl.STATIC_DRAW);
     this.positionMeta = posMetaData;
 
     if (color) {
       this.colorBuffer = createFloatBuffer(gl, color, gl.STATIC_DRAW);
-      this.colorMeta = colorMetaData || {
-        components: 4,
-        normalize: false,
-        stride: 0,
-        offset: 0
-      };
+      this.colorMeta = colorMetaData;
     }
   }
 
