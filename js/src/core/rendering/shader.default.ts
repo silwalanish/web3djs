@@ -1,4 +1,5 @@
 import Shader, { ShaderSource } from './shader';
+import { Texture } from '../utils/texture.utils';
 
 const DEFAULT_SHADER_SOURCE: ShaderSource = {
   vertex: `
@@ -33,8 +34,8 @@ export default class DefaultShader extends Shader {
   private readonly modelMatrixLoc: WebGLUniformLocation | null;
   private readonly projectionMatrixLoc: WebGLUniformLocation | null;
 
-  public constructor(gl: WebGLRenderingContext) {
-    super(gl, DEFAULT_SHADER_SOURCE);
+  public constructor(gl: WebGLRenderingContext, shaderSource?: ShaderSource) {
+    super(gl, shaderSource || DEFAULT_SHADER_SOURCE);
 
     this.vertexPositionLoc = this.getAttribLocation(gl, 'aVertexPosition');
     this.vertexColorLoc = this.getAttribLocation(gl, 'aVertexColor');
@@ -56,17 +57,6 @@ export default class DefaultShader extends Shader {
       gl.vertexAttribPointer(this.vertexPositionLoc, components, type, normalize, stride, offset);
       gl.enableVertexAttribArray(this.vertexPositionLoc);
     }
-  }
-
-  public enableIndex(
-    gl: WebGLRenderingContext,
-    components: number,
-    type: number,
-    normalize: boolean,
-    stride: number,
-    offset: number
-  ): void {
-    throw new Error('Method not implemented.');
   }
 
   public enableVertexNormal(
@@ -115,5 +105,9 @@ export default class DefaultShader extends Shader {
 
   public setProjectionMatrix(gl: WebGLRenderingContext, mat: Float32List): void {
     gl.uniformMatrix4fv(this.projectionMatrixLoc, false, mat);
+  }
+
+  public setTexture(gl: WebGLRenderingContext, tex: Texture, texPos?: number): void {
+    throw new Error("Method not implemented.");
   }
 }
