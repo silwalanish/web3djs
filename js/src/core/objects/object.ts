@@ -1,14 +1,14 @@
-import { vec3 } from "gl-matrix";
+import { vec3 } from 'gl-matrix';
 
-import Mesh from "./mesh";
-import Shader from "../rendering/shader";
-import { calculateModelMat } from "../utils/matrix.utils";
+import Mesh from './mesh';
+import Shader from '../rendering/shader';
+import { calculateModelMat } from '../utils/matrix.utils';
 
 export interface GameObjectMeta {
-  position?: vec3,
-  rotation?: vec3,
-  scale?: vec3,
-  mesh?: Mesh
+  position?: vec3;
+  rotation?: vec3;
+  scale?: vec3;
+  mesh?: Mesh;
 }
 
 const DEFAULT_OPTIONS = {
