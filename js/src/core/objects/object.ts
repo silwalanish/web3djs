@@ -5,28 +5,32 @@ import Shader from "../rendering/shader";
 import { calculateModelMat } from "../utils/matrix.utils";
 
 export interface GameObjectMeta {
-  position?: vec3;
-  rotation?: vec3;
-  mesh?: Mesh;
+  position?: vec3,
+  rotation?: vec3,
+  scale?: vec3,
+  mesh?: Mesh
 }
 
 const DEFAULT_OPTIONS = {
   position: vec3.create(),
-  rotation: vec3.create()
+  rotation: vec3.create(),
+  scale: vec3.fromValues(1, 1, 1)
 };
 
 export default class GameObject {
   private _position: vec3;
   private _rotation: vec3;
+  private _scale: vec3;
 
   private _mesh?: Mesh;
 
   constructor(options?: GameObjectMeta) {
     const defaultOptions = Object.create(DEFAULT_OPTIONS);
-    const { position, rotation, mesh } = Object.assign(defaultOptions, options);
+    const { position, rotation, scale, mesh } = Object.assign(defaultOptions, options);
 
     this._position = position;
     this._rotation = rotation;
+    this._scale = scale;
     this._mesh = mesh;
   }
 
@@ -54,11 +58,19 @@ export default class GameObject {
     return this._rotation;
   }
 
+  public set scale(scale: vec3) {
+    this._scale = scale;
+  }
+
+  public get scale(): vec3 {
+    return this._scale;
+  }
+
   public render(gl: WebGLRenderingContext, shader: Shader) {
     if (this._mesh) {
       this._mesh.bind(gl, shader);
 
-      shader.setModelMatrix(gl, calculateModelMat(this._position, this._rotation, vec3.fromValues(1, 1, 1)));
+      shader.setModelMatrix(gl, calculateModelMat(this._position, this._rotation, this._scale));
 
       this._mesh.render(gl);
     }
