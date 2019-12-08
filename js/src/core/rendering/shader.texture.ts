@@ -16,7 +16,7 @@ const TEXTURE_SHADER_SOURCE: ShaderSource = {
 
     void main() {
       gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
-      vUV = aVertexUV;
+      vUV = vec2(aVertexUV.x, 1.0 - aVertexUV.y);
     }
   `,
   fragment: `
