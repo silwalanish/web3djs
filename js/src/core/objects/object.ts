@@ -4,7 +4,7 @@ import Mesh from './mesh';
 import Shader from '../rendering/shader';
 import { calculateModelMat } from '../utils/matrix.utils';
 
-export interface GameObjectMeta {
+export interface GameObjectOptions {
   position?: vec3;
   rotation?: vec3;
   scale?: vec3;
@@ -24,7 +24,7 @@ export default class GameObject {
 
   private _mesh?: Mesh;
 
-  constructor(options?: GameObjectMeta) {
+  constructor(options?: GameObjectOptions) {
     const defaultOptions = Object.create(DEFAULT_OPTIONS);
     const { position, rotation, scale, mesh } = Object.assign(defaultOptions, options);
 
