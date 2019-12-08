@@ -15,6 +15,7 @@
     "watchify": "^3.11.1"
   },
   "dependencies": {
-    "gl-matrix": "^3.1.0"
+    "gl-matrix": "^3.1.0",
+    "webgl-obj-loader": "^2.0.6"
   }
 }
