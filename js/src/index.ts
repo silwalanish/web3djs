@@ -149,12 +149,12 @@ function play(meshes: DownloadedMeshes) {
     let shader: DefaultShader = new DefaultShader(gl);
 
     let boxTex: Texture = genTexture2D(gl, {
-      url: '/assets/RTS_Crate.png',
+      url: './assets/RTS_Crate.png',
       minFilter: gl.NEAREST
     });
 
     let monkeyTex: Texture = genTexture2D(gl, {
-      url: '/assets/monkey.png',
+      url: './assets/monkey.png',
       minFilter: gl.NEAREST
     });
 
@@ -191,5 +191,5 @@ function play(meshes: DownloadedMeshes) {
 }
 
 window.onload = () => {
-  OBJLoader.downloadMeshes({ monkeyObj: '/assets/monkey.obj' }, play, {});
+  OBJLoader.downloadMeshes({ monkeyObj: './assets/monkey.obj' }, play, {});
 };
