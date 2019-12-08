@@ -31,7 +31,7 @@ export default abstract class Shader {
   }
 
   public setUniform1f(gl: WebGLRenderingContext, loc: WebGLUniformLocation | null, val: number): void {
-    gl.uniform1i(loc, val);
+    gl.uniform1f(loc, val);
   }
 
   public setUniform3f(gl: WebGLRenderingContext, loc: WebGLUniformLocation | null, val: vec3): void {
@@ -80,5 +80,7 @@ export default abstract class Shader {
 
   public abstract setModelMatrix(gl: WebGLRenderingContext, mat: Float32List): void;
 
-  public abstract setTexture(gl: WebGLRenderingContext, tex: Texture, texPos?: number): void;
+  public abstract setColor(gl: WebGLRenderingContext, color: vec3): void;
+
+  public abstract setTexture(gl: WebGLRenderingContext, tex: Texture, texSize?: number, texPos?: number): void;
 }
