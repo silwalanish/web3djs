@@ -1,3 +1,4 @@
+import { error } from '../logger';
 import Shader from '../rendering/shader';
 import { Buffer, createFloatBuffer, BufferType, createUIntBuffer } from '../utils/buffer.utils';
 
@@ -97,27 +98,35 @@ export default class Mesh {
     );
 
     if (this.colorBuffer) {
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-      shader.enableVertexColor(
-        gl,
-        this.colorMeta.components,
-        gl.FLOAT,
-        this.colorMeta.normalize,
-        this.colorMeta.stride,
-        this.colorMeta.offset
-      );
+      try {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+        shader.enableVertexColor(
+          gl,
+          this.colorMeta.components,
+          gl.FLOAT,
+          this.colorMeta.normalize,
+          this.colorMeta.stride,
+          this.colorMeta.offset
+        );
+      } catch (err) {
+        error('Shader Doesn\'t support color buffers');
+      }
     }
 
     if (this.uvBuffer) {
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
-      shader.enableVertexUVPosition(
-        gl,
-        this.uvMeta.components,
-        gl.FLOAT,
-        this.uvMeta.normalize,
-        this.uvMeta.stride,
-        this.uvMeta.offset
-      );
+      try {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
+        shader.enableVertexUVPosition(
+          gl,
+          this.uvMeta.components,
+          gl.FLOAT,
+          this.uvMeta.normalize,
+          this.uvMeta.stride,
+          this.uvMeta.offset
+        );
+      } catch (err) {
+        error('Shader Doesn\'t support texture buffers');
+      }
     }
   }
 
