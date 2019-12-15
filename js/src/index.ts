@@ -1,22 +1,15 @@
-import { vec3, vec2 } from 'gl-matrix';
+import * as dat from 'dat.gui';
+import { vec3, vec2, vec4 } from 'gl-matrix';
 import * as OBJLoader from 'webgl-obj-loader';
 
-import Cube from './game/cube';
-import Plane from './game/plane';
-import { info } from './core/logger';
-import Mesh from './core/objects/mesh';
-import Camera from './core/rendering/camera';
 import GameObject from './core/objects/object';
+
+import Camera from './core/rendering/camera';
 import DefaultShader from './core/rendering/shader.default';
 import TextureShader from './core/rendering/shader.texture';
-import { Texture, genTexture2D } from './core/utils/texture.utils';
 
-const canvas: HTMLCanvasElement = document.createElement('canvas');
-
-canvas.width = window.outerWidth;
-canvas.height = window.outerHeight;
-
-const gl: WebGLRenderingContext | null = canvas.getContext('webgl');
+import { objToMesh } from './core/utils/obj.utils';
+import { genTexture2D } from './core/utils/texture.utils';
 
 let mouse = {
   down: false,
@@ -77,119 +70,206 @@ function keyDown(e: KeyboardEvent, camera: Camera) {
   }
 }
 
-function fullScreen() {
-  canvas.requestFullscreen();
-}
+const canvas: HTMLCanvasElement = document.createElement('canvas');
+let gl: WebGLRenderingContext | null = null;
 
 interface DownloadedMeshes extends OBJLoader.MeshMap {
   monkeyObj: OBJLoader.Mesh;
+  cubeObj: OBJLoader.Mesh;
 }
 
 function play(meshes: DownloadedMeshes) {
+  const { monkeyObj, cubeObj } = meshes;
+  let cubeMesh, monkeyMesh;
   if (gl) {
-    document.body.appendChild(canvas);
+    cubeMesh = objToMesh(gl, cubeObj);
+    monkeyMesh = objToMesh(gl, monkeyObj);
 
-    canvas.addEventListener('dblclick', fullScreen);
-    canvas.addEventListener('mousedown', mouse.onMouseDown.bind(mouse));
-    canvas.addEventListener('mouseup', mouse.onMouseUp.bind(mouse));
+    let game = new Game();
+    const GUI = new dat.GUI();
+    GUI.addColor(game, 'clearColor');
+    GUI.add(game, 'fullScreen');
+    
+    const cameraSettings = GUI.addFolder('Camera');
+    cameraSettings.add(game.camera, 'fov');
+    const cameraPosSettings = cameraSettings.addFolder('Position');
+    cameraPosSettings.add(game.camera.position, '0');
+    cameraPosSettings.add(game.camera.position, '1');
+    cameraPosSettings.add(game.camera.position, '2');
 
-    Cube.createMesh(gl);
-    Plane.createMesh(gl);
+    const lightSettings = GUI.addFolder('Light');
+    lightSettings.addColor(game.light, 'color');
+    const lightPosSettings = lightSettings.addFolder('Position');
+    lightPosSettings.add(game.light.position, '0');
+    lightPosSettings.add(game.light.position, '1');
+    lightPosSettings.add(game.light.position, '2');
 
-    const camera = new Camera({
-      fov: 60,
-      aspect: gl.canvas.width / gl.canvas.height,
-      zNear: 0.01,
-      zFar: 1000.0,
-      position: vec3.fromValues(0, 4, 4)
-    });
+    const cubeSettings = GUI.addFolder('Cube');
+    cubeSettings.addColor(game, 'cubeColor');
+    const cubePosSettings = cubeSettings.addFolder('Position');
+    cubePosSettings.add(game.cube.position, '0');
+    cubePosSettings.add(game.cube.position, '1');
+    cubePosSettings.add(game.cube.position, '2');
+    const cubeRotSettings = cubeSettings.addFolder('Rotation');
+    cubeRotSettings.add(game.cube.rotation, '0');
+    cubeRotSettings.add(game.cube.rotation, '1');
+    cubeRotSettings.add(game.cube.rotation, '2');
+    const cubeScaleSettings = cubeSettings.addFolder('Scale');
+    cubeScaleSettings.add(game.cube.scale, '0');
+    cubeScaleSettings.add(game.cube.scale, '1');
+    cubeScaleSettings.add(game.cube.scale, '2');
 
-    document.addEventListener('keydown', e => keyDown(e, camera));
-    canvas.addEventListener('mousemove', e => mouse.onMouseMove(e, camera));
+    const monkeySettings = GUI.addFolder('Monkey');
+    monkeySettings.addColor(game, 'monkeyColor');
+    const monkeyPosSettings = monkeySettings.addFolder('Position');
+    monkeyPosSettings.add(game.monkey.position, '0');
+    monkeyPosSettings.add(game.monkey.position, '1');
+    monkeyPosSettings.add(game.monkey.position, '2');
+    const monkeyRotSettings = monkeySettings.addFolder('Rotation');
+    monkeyRotSettings.add(game.monkey.rotation, '0');
+    monkeyRotSettings.add(game.monkey.rotation, '1');
+    monkeyRotSettings.add(game.monkey.rotation, '2');
+    const monkeyScaleSettings = monkeySettings.addFolder('Scale');
+    monkeyScaleSettings.add(game.monkey.scale, '0');
+    monkeyScaleSettings.add(game.monkey.scale, '1');
+    monkeyScaleSettings.add(game.monkey.scale, '2');
 
-    let cubes: Cube[] = [];
+    cubeSettings.open();
+    lightSettings.open();
+    monkeySettings.open();
 
-    for (let i = 0; i < 7; i++) {
-      for (let j = 0; j < 7; j++) {
-        cubes.push(
-          new Cube({
-            position: vec3.fromValues(-15 + i * 5, 0, -15 + j * 5),
-            scale: vec3.fromValues(Math.max(1, Math.random() * 2), 1, Math.max(1, Math.random() * 2))
-          })
-        );
+    document.addEventListener('keydown', e => keyDown(e, game.camera));
+    canvas.addEventListener('mousemove', e => mouse.onMouseMove(e, game.camera));
+  }
+
+  function Game() {
+    if (gl) {
+      this.clearColor = [0, 0, 0];
+      
+      this.lightColor = [255, 255, 255, 255];
+      this.lightPos = vec3.fromValues(0, 5, 0);
+      this.lightRadius = 2;
+
+      this.fov = 60;
+      this.cameraPos = vec3.fromValues(0, 4, 4);
+
+      this.cubePos = vec3.fromValues(0, 0, -10);
+      this.cubeScale = vec3.fromValues(5, 5, 5);
+      this.cubeColor = [255, 255, 0];
+
+      this.monkeyPos = vec3.fromValues(0, 3, -3);
+      this.monkeyColor = [0, 255, 0];
+
+      this.camera = new Camera({
+        fov: this.fov,
+        aspect: gl.canvas.width / gl.canvas.height,
+        zNear: 0.01,
+        zFar: 1000.0,
+        position: this.cameraPos
+      });
+
+      this.cube = new GameObject({
+        mesh: cubeMesh,
+        position: this.cubePos,
+        scale: this.cubeScale
+      });
+
+      this.monkey = new GameObject({
+        mesh: monkeyMesh,
+        position: this.monkeyPos
+      });
+
+      this.texShader = new TextureShader(gl);
+      this.shader = new DefaultShader(gl);
+
+      this.boxTex = genTexture2D(gl, {
+        url: 'assets/cube.png',
+        minFilter: gl.NEAREST
+      });
+
+      this.monkeyTex = genTexture2D(gl, {
+        url: 'assets/monkey.png',
+        minFilter: gl.NEAREST
+      });
+
+      this.light = {
+        color: this.lightColor,
+        position: this.lightPos,
+        radius: this.lightRadius
+      };  
+      
+      this.fullScreen = () => {
+        document.body.requestFullscreen();
+      };
+
+      this.draw = () => {
+        if (gl) {
+          vec3.normalize(this.clearColor, this.clearColor);
+          vec3.normalize(this.cubeColor, this.cubeColor); 
+          vec4.normalize(this.light.color, this.light.color);
+          vec3.normalize(this.monkeyColor, this.monkeyColor);
+
+          this.camera.calculateMatrix();
+
+          gl.clearColor(this.clearColor[0], this.clearColor[1], this.clearColor[2], 1);
+          gl.clearDepth(1);
+
+          gl.enable(gl.DEPTH_TEST);
+          gl.depthFunc(gl.LEQUAL);
+
+          gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+          this.texShader.use(gl);
+          this.texShader.setProjectionMatrix(gl, this.camera.getProjectionMatrix());
+          this.texShader.setViewMatrix(gl, this.camera.getViewMatrix());
+
+          this.texShader.addLight(gl, this.light);
+          this.texShader.setCameraPos(gl, this.camera.position);
+
+          this.texShader.setTexture(gl, this.monkeyTex);
+          this.monkey.render(gl, this.texShader);
+
+          this.texShader.setTexture(gl, this.cubeTex);
+
+          this.shader.use(gl);
+          this.shader.setProjectionMatrix(gl, this.camera.getProjectionMatrix());
+          this.shader.setViewMatrix(gl, this.camera.getViewMatrix());
+          
+          this.shader.addLight(gl, this.light);
+          this.shader.setCameraPos(gl, this.camera.position);
+
+          this.shader.setColor(gl, this.cubeColor);
+          this.cube.render(gl, this.shader);
+
+          window.requestAnimationFrame(this.draw.bind(this));
+        }
       }
+
+      window.requestAnimationFrame(this.draw.bind(this));
     }
-
-    const { monkeyObj } = meshes;
-
-    let monkeyMesh: Mesh = new Mesh({
-      gl,
-      meta: {
-        firstVertex: 0,
-        meshType: gl.TRIANGLES,
-        numVertex: monkeyObj.indices.length
-      },
-      positions: monkeyObj.vertices,
-      uvs: monkeyObj.textures,
-      indices: monkeyObj.indices,
-      posMetaData: {
-        components: 3,
-        normalize: false,
-        offset: 0,
-        stride: 0
-      }
-    });
-
-    let monkey: GameObject = new GameObject({
-      mesh: monkeyMesh,
-      position: vec3.fromValues(0, 3, -3)
-    });
-
-    let texShader: TextureShader = new TextureShader(gl);
-    let shader: DefaultShader = new DefaultShader(gl);
-
-    let boxTex: Texture = genTexture2D(gl, {
-      url: 'assets/RTS_Crate.png',
-      minFilter: gl.NEAREST
-    });
-
-    let monkeyTex: Texture = genTexture2D(gl, {
-      url: 'assets/monkey.png',
-      minFilter: gl.NEAREST
-    });
-
-    const wallColor: vec3 = vec3.fromValues(0.2, 0.4, 0.6);
-
-    window.requestAnimationFrame(function draw() {
-      camera.calculateMatrix();
-
-      gl.clearColor(0, 0, 0, 1);
-      gl.clearDepth(1);
-
-      gl.enable(gl.DEPTH_TEST);
-      gl.depthFunc(gl.LEQUAL);
-
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-      texShader.use(gl);
-      texShader.setProjectionMatrix(gl, camera.getProjectionMatrix());
-      texShader.setViewMatrix(gl, camera.getViewMatrix());
-
-      texShader.setTexture(gl, boxTex);
-      for (let cube of cubes) {
-        cube.render(gl, texShader);
-      }
-
-      texShader.setTexture(gl, monkeyTex);
-      monkey.render(gl, texShader);
-
-      window.requestAnimationFrame(draw);
-    });
-  } else {
-    info("The browser doesn't support WebGL.");
   }
 }
 
 window.onload = () => {
-  OBJLoader.downloadMeshes({ monkeyObj: 'assets/monkey.obj' }, play, {});
+  canvas.width = window.outerWidth;
+  canvas.height = window.outerHeight;
+
+  gl = canvas.getContext('webgl');
+
+  document.body.appendChild(canvas);
+
+  canvas.addEventListener('dblclick', () => {
+    document.body.requestFullscreen();
+  });
+  canvas.addEventListener('mousedown', mouse.onMouseDown.bind(mouse));
+  canvas.addEventListener('mouseup', mouse.onMouseUp.bind(mouse));
+
+  OBJLoader.downloadMeshes(
+    {
+      monkeyObj: 'assets/monkey.obj',
+      cubeObj: 'assets/cube.obj'
+    },
+    play,
+    {}
+  );
 };
