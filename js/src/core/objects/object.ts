@@ -28,9 +28,9 @@ export default class GameObject {
     const defaultOptions = Object.create(DEFAULT_OPTIONS);
     const { position, rotation, scale, mesh } = Object.assign(defaultOptions, options);
 
-    this._position = position;
-    this._rotation = rotation;
-    this._scale = scale;
+    this._position = vec3.clone(position);
+    this._rotation = vec3.clone(rotation);
+    this._scale = vec3.clone(scale);
     this._mesh = mesh;
   }
 

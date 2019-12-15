@@ -49,10 +49,10 @@ export default class Camera {
     this._aspect = aspect;
     this._zNear = zNear;
     this._zFar = zFar;
-    this._position = position;
-    this._rotation = rotation;
+    this._position = vec3.clone(position);
+    this._rotation = vec3.clone(rotation);
     this._front = vec3.fromValues(0, 0, -1);
-    this._up = up;
+    this._up = vec3.clone(up);
     this._speed = speed;
 
     this.calculateFront();
