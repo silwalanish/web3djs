@@ -1,20 +1,35 @@
 import { vec3 } from 'gl-matrix';
+
+import Light from './lights/light';
 import Shader, { ShaderSource } from './shader';
 import { Texture } from '../utils/texture.utils';
 
 const DEFAULT_SHADER_SOURCE: ShaderSource = {
   vertex: `
-    attribute vec4 aVertexPosition;
+    precision highp float;
+
+    attribute vec3 aVertexPosition;
+    attribute vec3 aVertexNormal;
 
     uniform mat4 uViewMatrix;
     uniform mat4 uModelMatrix;
     uniform mat4 uProjectionMatrix;
 
+    varying vec3 vNormal;
+    
     void main() {
-      gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
+      vec4 worldPos = uModelMatrix * vec4(aVertexPosition, 1.0);
+
+      gl_Position = uProjectionMatrix * uViewMatrix * worldPos;
+      
+      vNormal = (uModelMatrix * vec4(aVertexNormal, 0.0)).xyz;
     }
   `,
   fragment: `
+    precision highp float;
+
+    varying vec3 vNormal;
+
     uniform lowp vec3 uColor;
 
     void main() {
@@ -25,6 +40,7 @@ const DEFAULT_SHADER_SOURCE: ShaderSource = {
 
 export default class DefaultShader extends Shader {
   private readonly vertexPositionLoc: GLuint | null;
+  private readonly vertexNormalLoc: GLuint | null;
 
   private readonly viewMatrixLoc: WebGLUniformLocation | null;
   private readonly modelMatrixLoc: WebGLUniformLocation | null;
@@ -36,6 +52,7 @@ export default class DefaultShader extends Shader {
     super(gl, shaderSource || DEFAULT_SHADER_SOURCE);
 
     this.vertexPositionLoc = this.getAttribLocation(gl, 'aVertexPosition');
+    this.vertexNormalLoc = this.getAttribLocation(gl, 'aVertexNormal');
 
     this.viewMatrixLoc = this.getUniformLocation(gl, 'uViewMatrix');
     this.modelMatrixLoc = this.getUniformLocation(gl, 'uModelMatrix');
@@ -66,7 +83,10 @@ export default class DefaultShader extends Shader {
     stride: number,
     offset: number
   ): void {
-    throw new Error('Method not implemented.');
+    if (this.vertexNormalLoc != null && this.vertexNormalLoc >= 0) {
+      gl.vertexAttribPointer(this.vertexNormalLoc, components, type, normalize, stride, offset);
+      gl.enableVertexAttribArray(this.vertexNormalLoc);
+    }
   }
 
   public enableVertexColor(

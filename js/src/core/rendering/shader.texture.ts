@@ -5,23 +5,31 @@ import { Texture } from '../utils/texture.utils';
 const TEXTURE_SHADER_SOURCE: ShaderSource = {
   vertex: `
     precision highp float;
-    attribute vec4 aVertexPosition;
+
+    attribute vec3 aVertexPosition;
     attribute vec2 aVertexUV;
+    attribute vec3 aVertexNormal;
 
     uniform mat4 uViewMatrix;
     uniform mat4 uModelMatrix;
     uniform mat4 uProjectionMatrix;
 
     varying vec2 vUV;
-
+    varying vec3 vNormal;
+    
     void main() {
-      gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aVertexPosition;
+      vec4 worldPos = uModelMatrix * vec4(aVertexPosition, 1.0);
+
+      gl_Position = uProjectionMatrix * uViewMatrix * worldPos;
       vUV = vec2(aVertexUV.x, 1.0 - aVertexUV.y);
+      vNormal = (uModelMatrix * vec4(aVertexNormal, 0.0)).xyz;
     }
   `,
   fragment: `
     precision highp float;
+
     varying vec2 vUV;
+    varying vec3 vNormal;
 
     uniform sampler2D uTex;
     uniform float uTexSize;
@@ -43,6 +51,7 @@ export default class TextureShader extends DefaultShader {
     super(gl, shaderSource || TEXTURE_SHADER_SOURCE);
 
     this.vertexUVLoc = this.getAttribLocation(gl, 'aVertexUV');
+
     this.texLoc = this.getUniformLocation(gl, 'uTex');
     this.texSizeLoc = this.getUniformLocation(gl, 'uTexSize');
   }
@@ -68,5 +77,4 @@ export default class TextureShader extends DefaultShader {
     this.setUniform1i(gl, this.texLoc, texPos || 0);
     this.setUniform1f(gl, this.texSizeLoc, texSize || 1.0);
   }
-
 }
