@@ -22,6 +22,8 @@ export interface MeshOptions {
   posMetaData: BufferMeta;
   colors?: GLfloat[];
   colorMetaData?: BufferMeta;
+  normals?: GLfloat[];
+  normalMetaData?: BufferMeta;
   uvs?: GLfloat[];
   uvMetaData?: BufferMeta;
   indices?: GLuint[];
@@ -39,6 +41,12 @@ const DEFAULT_OPTIONS = {
     normalize: false,
     stride: 0,
     offset: 0
+  },
+  normalMetaData: {
+    components: 3,
+    normalize: false,
+    stride: 0,
+    offset: 0
   }
 };
 
@@ -52,16 +60,28 @@ export default class Mesh {
   private uvBuffer: Buffer;
   private uvMeta: BufferMeta;
 
+  private normalBuffer: Buffer;
+  private normalMeta: BufferMeta;
+
   private indicesBuffer: Buffer;
 
   private meshMeta: MeshMeta;
 
   public constructor(options: MeshOptions) {
     const defaultOptions = Object.create(DEFAULT_OPTIONS);
-    const { gl, meta, positions, posMetaData, colors, colorMetaData, uvs, uvMetaData, indices } = Object.assign(
-      defaultOptions,
-      options
-    );
+    const {
+      gl,
+      meta,
+      positions,
+      posMetaData,
+      colors,
+      colorMetaData,
+      uvs,
+      uvMetaData,
+      normals,
+      normalMetaData,
+      indices
+    } = Object.assign(defaultOptions, options);
 
     this.meshMeta = meta;
     this.positionBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
@@ -75,6 +95,11 @@ export default class Mesh {
     if (uvs) {
       this.uvBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, uvs, gl.STATIC_DRAW);
       this.uvMeta = uvMetaData;
+    }
+
+    if (normals) {
+      this.normalBuffer = createFloatBuffer(gl, BufferType.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+      this.normalMeta = normalMetaData;
     }
 
     if (indices) {
@@ -126,6 +151,22 @@ export default class Mesh {
         );
       } catch (err) {
         error('Shader Doesn\'t support texture buffers');
+      }
+    }
+
+    if (this.normalBuffer) {
+      try {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+        shader.enableVertexNormal(
+          gl,
+          this.normalMeta.components,
+          gl.FLOAT,
+          this.normalMeta.normalize,
+          this.normalMeta.stride,
+          this.normalMeta.offset
+        );
+      } catch (err) {
+        error('Shader Doesn\'t support normal buffers');
       }
     }
   }
