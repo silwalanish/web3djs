@@ -5,7 +5,6 @@ import { Texture } from '../utils/texture.utils';
 const TEXTURE_SHADER_SOURCE: ShaderSource = {
   vertex: `
     precision highp float;
-
     attribute vec3 aVertexPosition;
     attribute vec2 aVertexUV;
     attribute vec3 aVertexNormal;
@@ -13,9 +12,13 @@ const TEXTURE_SHADER_SOURCE: ShaderSource = {
     uniform mat4 uViewMatrix;
     uniform mat4 uModelMatrix;
     uniform mat4 uProjectionMatrix;
+    uniform vec3 uLightPos;
+    uniform vec3 uCameraPos;
 
     varying vec2 vUV;
     varying vec3 vNormal;
+    varying vec3 vPos;
+    varying vec3 toCamera;
     
     void main() {
       vec4 worldPos = uModelMatrix * vec4(aVertexPosition, 1.0);
@@ -23,20 +26,40 @@ const TEXTURE_SHADER_SOURCE: ShaderSource = {
       gl_Position = uProjectionMatrix * uViewMatrix * worldPos;
       vUV = vec2(aVertexUV.x, 1.0 - aVertexUV.y);
       vNormal = (uModelMatrix * vec4(aVertexNormal, 0.0)).xyz;
+
+      vPos = uLightPos - worldPos.xyz;
+      toCamera = uCameraPos - worldPos.xyz;
     }
   `,
   fragment: `
     precision highp float;
-
     varying vec2 vUV;
     varying vec3 vNormal;
+    varying vec3 vPos;
+    varying vec3 toCamera;
 
     uniform sampler2D uTex;
     uniform float uTexSize;
+    uniform vec4 uLightColor;
+    uniform float uLightRadius;
 
     void main() {
+      vec3 unitToLight = normalize(vPos);
+      vec3 unitNormal = normalize(vNormal);
+      vec3 unitToCamera = normalize(toCamera);
+      vec3 lightDir = -unitToLight;
+      vec3 reflected = reflect(lightDir, unitNormal);
+
+      float intensity = max(dot(unitNormal, unitToLight), 0.0);
+      float spec = max(dot(reflected, unitToCamera), 0.0);
+
+      float damped = pow(spec, 10.0); // TODO: Pass factor as uniform
+
+      vec4 specular = uLightColor * damped;
+      vec4 diffuse = uLightColor * intensity;
+
       vec4 texColor = texture2D(uTex, vUV * uTexSize);
-      gl_FragColor = texColor;
+      gl_FragColor = texColor * diffuse + specular;
     }
   `
 };

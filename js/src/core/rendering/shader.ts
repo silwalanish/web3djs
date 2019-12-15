@@ -1,4 +1,6 @@
-import { vec3 } from 'gl-matrix';
+import { vec3, vec4 } from 'gl-matrix';
+
+import Light from './lights/light';
 import { Texture } from '../utils/texture.utils';
 import { genShaderProgram, ShaderProgramType } from '../utils/shader.utils';
 
@@ -36,6 +38,10 @@ export default abstract class Shader {
 
   public setUniform3f(gl: WebGLRenderingContext, loc: WebGLUniformLocation | null, val: vec3): void {
     gl.uniform3fv(loc, val);
+  }
+
+  public setUniform4f(gl: WebGLRenderingContext, loc: WebGLUniformLocation | null, val: vec4): void {
+    gl.uniform4fv(loc, val);
   }
 
   public abstract enableVertexPosition(
@@ -83,4 +89,8 @@ export default abstract class Shader {
   public abstract setColor(gl: WebGLRenderingContext, color: vec3): void;
 
   public abstract setTexture(gl: WebGLRenderingContext, tex: Texture, texSize?: number, texPos?: number): void;
+
+  public abstract addLight(gl: WebGLRenderingContext, light: Light): void;
+
+  public abstract setCameraPos(gl: WebGLRenderingContext, pos: vec3): void;
 }
