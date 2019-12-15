@@ -122,7 +122,7 @@ export default class Mesh {
       this.positionMeta.offset
     );
 
-    if (this.colorBuffer) {
+    if (this.colorBuffer && shader.hasColorBuffer()) {
       try {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
         shader.enableVertexColor(
@@ -138,7 +138,7 @@ export default class Mesh {
       }
     }
 
-    if (this.uvBuffer) {
+    if (this.uvBuffer && shader.hasUVBuffer()) {
       try {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
         shader.enableVertexUVPosition(
@@ -154,7 +154,7 @@ export default class Mesh {
       }
     }
 
-    if (this.normalBuffer) {
+    if (this.normalBuffer && shader.hasNormalBuffer()) {
       try {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
         shader.enableVertexNormal(

@@ -100,4 +100,8 @@ export default class TextureShader extends DefaultShader {
     this.setUniform1i(gl, this.texLoc, texPos || 0);
     this.setUniform1f(gl, this.texSizeLoc, texSize || 1.0);
   }
+
+  public hasUVBuffer(): boolean {
+    return true;
+  }
 }

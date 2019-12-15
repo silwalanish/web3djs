@@ -175,4 +175,16 @@ export default class DefaultShader extends Shader {
   public setCameraPos(gl: WebGLRenderingContext, pos: vec3): void {
     this.setUniform3f(gl, this.cameraPosLoc, pos);
   }
+
+  public hasColorBuffer(): boolean {
+    return false;
+  }
+
+  public hasUVBuffer(): boolean {
+    return false;
+  }
+
+  public hasNormalBuffer(): boolean {
+    return true;
+  }
 }

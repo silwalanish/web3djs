@@ -93,4 +93,10 @@ export default abstract class Shader {
   public abstract addLight(gl: WebGLRenderingContext, light: Light): void;
 
   public abstract setCameraPos(gl: WebGLRenderingContext, pos: vec3): void;
+
+  public abstract hasColorBuffer(): boolean;
+
+  public abstract hasUVBuffer(): boolean;
+
+  public abstract hasNormalBuffer(): boolean;
 }
