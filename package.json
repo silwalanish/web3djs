@@ -1,0 +1,48 @@
+{
+  "name": "web3djs",
+  "version": "0.2.0",
+  "description": "A typescript library for WebGL.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": false,
+  "author": "Anish Silwal <silwalanish@gmail.com>",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prebuild": "yarn clean",
+    "clean": "rm -rf ./dist/",
+    "postinstall": "husky install",
+    "postpublish": "pinst --enable",
+    "prepublishOnly": "pinst --disable",
+    "test": "jest --config jest.config.json",
+    "lint": "eslint --config .eslintrc '{src,test}/**/*.ts'",
+    "test:coverage": "jest --config jest.config.json --coverage",
+    "lint:fix": "eslint --config .eslintrc --fix '{src,test}/**/*.ts'",
+    "prettify": "prettier --config .prettierrc --write '{src,test}/**/*.ts'"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@tsconfig/node14": "^1.0.1",
+    "@types/jest": "^27.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.32.0",
+    "@typescript-eslint/parser": "^4.32.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.2",
+    "jest": "^27.2.4",
+    "pinst": "^2.1.6",
+    "prettier": "^2.4.1",
+    "ts-jest": "^27.0.5",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "gl-matrix": "^3.1.0",
+    "webgl-obj-loader": "^2.0.6"
+  },
+  "files": [
+    "/src",
+    "/dist"
+  ]
+}
